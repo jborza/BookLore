@@ -431,7 +431,7 @@ public class GoodReadsParser implements BookParser {
                     .header("downlink", "10")
                     .header("dpr", "2")
                     .header("ect", "4g")
-                    .header("origin", "https://www.amazon.com")
+                    .header("origin", "https://www.goodreads.com")
                     .header("priority", "u=1, i")
                     .header("rtt", "50")
                     .header("sec-ch-device-memory", "8")
