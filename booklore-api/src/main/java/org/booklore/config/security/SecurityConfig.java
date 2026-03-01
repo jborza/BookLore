@@ -227,6 +227,7 @@ public class SecurityConfig {
     @Order(9)
     public SecurityFilterChain staticResourcesSecurityChain(HttpSecurity http) throws Exception {
         http
+                .securityMatcher("/assets/**", "/favicon.ico", "/media/**", "/manifest.webmanifest")
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(headers -> headers
@@ -236,6 +237,34 @@ public class SecurityConfig {
                         .contentTypeOptions(contentType -> {})
                 )
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        return http.build();
+    }
+
+    @Bean
+    @Order(99)
+    public SecurityFilterChain uiAndSwaggerSecurityChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(AbstractHttpConfigurer::disable)
+            .headers(headers -> headers
+                .referrerPolicy(ref -> ref.policy(
+                    ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                .contentTypeOptions(contentType -> {})
+            )
+            .authorizeHttpRequests(auth -> auth
+                // Allow Swagger & OpenAPI
+                .requestMatchers(
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
+                ).permitAll()
+
+                // UI frontend also needs to be accessible
+                .requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico", "/manifest.webmanifest")
+                .permitAll()
+
+                // Everything else must be authenticated
+                .anyRequest().authenticated()
+            );
         return http.build();
     }
 
